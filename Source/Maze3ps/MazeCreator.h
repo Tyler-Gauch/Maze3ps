@@ -13,16 +13,26 @@
 #define WEST 3
 #define EAST 4
 
-struct Tile {
+USTRUCT()
+struct FStructTile {
+  GENERATED_BODY()
+  UPROPERTY()
   bool hasNorthWall = true;
+  UPROPERTY()
   bool hasSouthWall = true;
+  UPROPERTY()
   bool hasWestWall = true;
+  UPROPERTY()
   bool hasEastWall = true;
+  UPROPERTY()
   bool visited = false;
+  UPROPERTY()
   int x;
+  UPROPERTY()
   int y;
 };
 
+// if this fails change to development editor
 UCLASS()
 class MAZE3PS_API AMazeCreator : public AActor
 {
@@ -40,7 +50,7 @@ public:
     TSubclassOf<AMazeTile> MazeTileBP;
 
 	// Sets default values for this actor's properties
-	AMazeCreator();
+  AMazeCreator(const FObjectInitializer& ObjectInitializer);
   ~AMazeCreator();
 
   void generate();
@@ -52,17 +62,19 @@ public:
 
   AMazeTile * GetMazeTileByIndex(int x, int y);
 
+  float hasMaze = 0;
+
+  void DebugPrintMaze();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 private:	
 
-  Tile ** tiles;
+  FStructTile ** tiles;
 
   AMazeTile ** mazeTiles;
-
-  AMaze3psCharacter* character;
 
   UPROPERTY(EditAnywhere)
     int TileWidth = 900;
@@ -79,17 +91,15 @@ private:
 
   void generateInitialTiles();
 
-  Tile* getNorthTile(Tile * currentTile);
+  FStructTile* getNorthTile(FStructTile* currentTile);
 
-  Tile* getSouthTile(Tile * currentTile);
+  FStructTile* getSouthTile(FStructTile* currentTile);
 
-  Tile* getEastTile(Tile * currentTile);
+  FStructTile* getEastTile(FStructTile* currentTile);
 
-  Tile* getWestTile(Tile * currentTile);
+  FStructTile* getWestTile(FStructTile* currentTile);
 
-  Tile* getTileAtIndex(int x, int y);
+  FStructTile* getTileAtIndex(int x, int y);
 
   int getTileIndex(int x, int y);
-	
-	
 };

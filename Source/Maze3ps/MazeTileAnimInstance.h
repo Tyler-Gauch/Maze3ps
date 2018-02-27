@@ -22,7 +22,6 @@
 #define T_NORTH             13
 #define T_WEST              14
 
-
 /**
  * 
  */
@@ -33,8 +32,6 @@ class MAZE3PS_API UMazeTileAnimInstance : public UAnimInstance
 
 public:
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    int TileType = 0;
-	
-	
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
+  int TileType = 0;
 };
