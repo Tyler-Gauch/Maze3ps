@@ -7,7 +7,7 @@
 AMazeTile::AMazeTile()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
   if (HasAuthority()) {
     this->SetReplicates(true);
@@ -16,21 +16,29 @@ AMazeTile::AMazeTile()
 
   this->tileMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MazeTileMesh"));
   RootComponent = this->tileMesh;
+}
+
+void AMazeTile::BeginPlay() {
+  Super::BeginPlay();
   this->animInstance = Cast<UMazeTileAnimInstance>(this->tileMesh->GetAnimInstance());
 
-  if (!this->animInstance) return;
+  if (!this->animInstance) {
+    UE_LOG(LogTemp, Error, TEXT("Failed to get animinstance"))
+    return;
+  }
   this->animInstance->TileType = CROSS;
 }
 
-void AMazeTile::SetTileType(int newTileType) {
-  this->TileType = newTileType;
-
-  if (HasAuthority()) {
-    this->UpdateAnimInstanceTileType();
-  }
+bool AMazeTile::Server_SetTileType_Validate(int newTileType) {
+  return true;
 }
 
-void AMazeTile::UpdateAnimInstanceTileType() {
+void AMazeTile::Server_SetTileType_Implementation(int newTileType) {
+  this->TileType = newTileType;
+  this->OnRep_TileType();
+}
+
+void AMazeTile::OnRep_TileType() {
   if (!this->animInstance) return;
   this->animInstance->TileType = this->TileType;
 }

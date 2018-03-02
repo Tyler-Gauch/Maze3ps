@@ -51,44 +51,31 @@ void AMazeCreator::DebugPrintMaze() {
       int southTile = getMultiDimensionalIndexInSingleDimensionArray(currentTileX, currentTileY + 1, mapHeight);
       int westTile = getMultiDimensionalIndexInSingleDimensionArray(currentTileX - 1, currentTileY, mapHeight);
 
-      bool isStartingTile = (currentTileX == 1 && currentTileY == 1);
+      map[currentTile] = ' ';
 
-      if (isStartingTile) {
-        map[currentTile] = 'S';
-        map[northTile] = 'n';
-        map[southTile] = 's';
-        map[eastTile] = 'e';
-        map[westTile] = 'w';
+      if (tile->hasNorthWall) {
+        map[northTile] = '&';
       } else {
-        map[currentTile] = ' ';
-
-        if (tile->hasNorthWall) {
-          map[northTile] = '&';
-        } else {
-          map[northTile] = ' ';
-        }
-
-        if (tile->hasEastWall) {
-          map[eastTile] = '&';
-        } else {
-          map[eastTile] = ' ';
-        }
-
-        if (tile->hasSouthWall) {
-          map[southTile] = '&';
-        } else {
-          map[southTile] = ' ';
-        }
-
-        if (tile->hasWestWall) {
-          map[westTile] = '&';
-        } else {
-          map[westTile] = ' ';
-        }
-
+        map[northTile] = ' ';
       }
 
+      if (tile->hasEastWall) {
+        map[eastTile] = '&';
+      } else {
+        map[eastTile] = ' ';
+      }
 
+      if (tile->hasSouthWall) {
+        map[southTile] = '&';
+      } else {
+        map[southTile] = ' ';
+      }
+
+      if (tile->hasWestWall) {
+        map[westTile] = '&';
+      } else {
+        map[westTile] = ' ';
+      }
     }
   }
 
@@ -125,7 +112,7 @@ void AMazeCreator::Tick(float DeltaTime)
   this->timeSinceLastMazeCreate += DeltaTime;
   this->timePassed += DeltaTime;
 
-  if (this->timeSinceLastMazeCreate > 10.0f && HasAuthority()) {
+  if (this->timeSinceLastMazeCreate > this->timeToRegenerateMaze && HasAuthority()) {
     this->generateInitialTiles();
     this->generate();
   }  
@@ -153,7 +140,7 @@ void AMazeCreator::generate() {
   FStructTile* currentTile = startTile;
   FStructTile* nextTile = nullptr;
 
-  while (hasUnvisted && path.size() < this->width * this->height + 10) {
+  while (hasUnvisted && path.size() < this->width * this->height) {
     // get the current tile off the top of the stack
     currentTile->visited = true;
 
@@ -256,11 +243,11 @@ void AMazeCreator::renderMaze(float DeltaTime) {
       location.Y = this->TileWidth * y;
       AMazeTile* mazeTile = this->mazeTiles[currentTileIndex];
 
-      if (mazeTile != NULL) {
+      if (mazeTile != nullptr) {
         if (!this->needsMazeRefresh) {
           continue;
         }
-      } else if (mazeTile == NULL) {
+      } else if (mazeTile == nullptr) {
         mazeTile = (AMazeTile*)world->SpawnActor(MazeTileBP, &location);
       } else {
         continue;
@@ -270,35 +257,35 @@ void AMazeCreator::renderMaze(float DeltaTime) {
       // determine the state of the tile
 
       if (!tileData->hasNorthWall && tileData->hasEastWall && tileData->hasWestWall && tileData->hasSouthWall) {
-        mazeTile->SetTileType(DEADEND_NORTH);
+        mazeTile->Server_SetTileType(DEADEND_NORTH);
       } else if (!tileData->hasSouthWall && tileData->hasEastWall && tileData->hasWestWall && tileData->hasNorthWall) {
-        mazeTile->SetTileType(DEADEND_SOUTH);
+        mazeTile->Server_SetTileType(DEADEND_SOUTH);
       } else if (!tileData->hasEastWall && tileData->hasSouthWall && tileData->hasWestWall && tileData->hasNorthWall) {
-        mazeTile->SetTileType(DEADEND_EAST);
+        mazeTile->Server_SetTileType(DEADEND_EAST);
       } else if (!tileData->hasWestWall && tileData->hasSouthWall && tileData->hasEastWall && tileData->hasNorthWall) {
-        mazeTile->SetTileType(DEADEND_WEST);
+        mazeTile->Server_SetTileType(DEADEND_WEST);
       } else if (!tileData->hasEastWall && !tileData->hasWestWall && tileData->hasNorthWall && tileData->hasSouthWall) {
-        mazeTile->SetTileType(HALLWAY_EAST_WEST);
+        mazeTile->Server_SetTileType(HALLWAY_EAST_WEST);
       } else if (tileData->hasEastWall && tileData->hasWestWall && !tileData->hasNorthWall && !tileData->hasSouthWall) {
-        mazeTile->SetTileType(HALLWAY_NORTH_SOUTH);
+        mazeTile->Server_SetTileType(HALLWAY_NORTH_SOUTH);
       } else if (tileData->hasSouthWall && !tileData->hasEastWall && !tileData->hasWestWall && !tileData->hasNorthWall) {
-        mazeTile->SetTileType(T_NORTH);
+        mazeTile->Server_SetTileType(T_NORTH);
       } else if (!tileData->hasSouthWall && !tileData->hasEastWall && !tileData->hasWestWall && tileData->hasNorthWall) {
-        mazeTile->SetTileType(T_SOUTH);
+        mazeTile->Server_SetTileType(T_SOUTH);
       } else if (!tileData->hasSouthWall && !tileData->hasEastWall && tileData->hasWestWall && !tileData->hasNorthWall) {
-        mazeTile->SetTileType(T_EAST);
+        mazeTile->Server_SetTileType(T_EAST);
       } else if (!tileData->hasSouthWall && tileData->hasEastWall && !tileData->hasWestWall && !tileData->hasNorthWall) {
-        mazeTile->SetTileType(T_WEST);
+        mazeTile->Server_SetTileType(T_WEST);
       } else if (tileData->hasNorthWall && !tileData->hasSouthWall && !tileData->hasEastWall && tileData->hasWestWall) {
-        mazeTile->SetTileType(CORNER_EAST_SOUTH);
+        mazeTile->Server_SetTileType(CORNER_EAST_SOUTH);
       } else if (!tileData->hasNorthWall && tileData->hasSouthWall && !tileData->hasEastWall && tileData->hasWestWall) {
-        mazeTile->SetTileType(CORNER_NORTH_EAST);
+        mazeTile->Server_SetTileType(CORNER_NORTH_EAST);
       } else if (tileData->hasNorthWall && !tileData->hasSouthWall && tileData->hasEastWall && !tileData->hasWestWall) {
-        mazeTile->SetTileType(CORNER_SOUTH_WEST);
+        mazeTile->Server_SetTileType(CORNER_SOUTH_WEST);
       } else if (!tileData->hasNorthWall && tileData->hasSouthWall && tileData->hasEastWall && !tileData->hasWestWall) {
-        mazeTile->SetTileType(CORNER_WEST_NORTH);
+        mazeTile->Server_SetTileType(CORNER_WEST_NORTH);
       } else {
-        mazeTile->SetTileType(CROSS);
+        mazeTile->Server_SetTileType(CROSS);
       }
 
       this->mazeTiles[this->getTileIndex(x, y)] = mazeTile;
@@ -317,7 +304,7 @@ void AMazeCreator::generateInitialTiles() {
       int tileIndex = this->getTileIndex(x, y);
       this->tiles[tileIndex] = tile;
       if (this->InitialStart) {
-        this->mazeTiles[tileIndex] = NULL;
+        this->mazeTiles[tileIndex] = nullptr;
       }
     }
   }  
@@ -365,7 +352,7 @@ FVector2D* AMazeCreator::FindMazeTileIndexByLocation(FVector location) {
 
 AMazeTile* AMazeCreator::GetMazeTileByIndex(int x, int y) {
   if (x < 0 || y < 0 || x >= this->width || y >= this->height) {
-    return NULL;
+    return nullptr;
   }
   return this->mazeTiles[getMultiDimensionalIndexInSingleDimensionArray(x, y, this->width)];
 }

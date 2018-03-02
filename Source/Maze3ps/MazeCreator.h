@@ -47,6 +47,9 @@ public:
     int width = 100;
 
   UPROPERTY(EditAnywhere)
+    float timeToRegenerateMaze = 10.0f;
+
+  UPROPERTY(EditAnywhere)
     TSubclassOf<AMazeTile> MazeTileBP;
 
 	// Sets default values for this actor's properties

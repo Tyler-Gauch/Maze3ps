@@ -21,12 +21,18 @@ public:
 
   UMazeTileAnimInstance* animInstance;
 
-  void SetTileType(int newTileType);
+  UFUNCTION(reliable, server, WithValidation)
+  void Server_SetTileType(int newTileType);
+  bool Server_SetTileType_Validate(int newTileType);
+  void Server_SetTileType_Implementation(int newTileType);
+
+  virtual void BeginPlay() override;
 
 private:
 
-  UPROPERTY(Replicated)
+  UPROPERTY(ReplicatedUsing=OnRep_TileType)
     int TileType = 0;
 
-  void UpdateAnimInstanceTileType();
+  UFUNCTION()
+  void OnRep_TileType();
 };
